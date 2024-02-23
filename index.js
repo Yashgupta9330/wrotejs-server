@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
     });
   
     socket.on("drawPath", ({ x, y}) => {
-       console.log("drawPath - room:", roomid);
+      console.log("drawLine - room:", roomid);
       io.to(roomid).emit("drawPath", { x, y });
     });
   
