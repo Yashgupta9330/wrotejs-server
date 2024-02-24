@@ -8,9 +8,11 @@ const app = express();
 app.use(cors()); 
 var roomid='';
 const httpServer = createServer(app);
+const isDev = app.settings.env === 'development'
+const URL = isDev ? 'http://localhost:3000' : 'https://wrote-us.vercel.app'
 const io = new Server(httpServer, { 
     cors:{
-        origin:"http://localhost:3000",
+        origin:URL,
         methods:["GET","POST"],
         credentials:true
     }
@@ -19,6 +21,7 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
     console.log("server connected");
     roomid=socket.id;
+    socket.emit('yourUniqueIdEvent',roomid);
     socket.on("beginPath", ({ x, y}) => {
       console.log("beginPath - room:", roomid);
       io.to(roomid).emit("beginPath", { x, y });
