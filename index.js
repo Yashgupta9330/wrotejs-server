@@ -20,15 +20,15 @@ const io = new Server(httpServer, {
 let roomid;
 io.on("connection", (socket) => {
     console.log("server connected");
+    
     socket.emit('yourUniqueIdEvent',roomid);
-    socket.on("beginPath", ({ x, y , room}) => {
-      console.log("beginPath - room:", room);
-      io.to(room).emit("beginPath", { x, y });
+
+    socket.on('beginPath', ({ x, y, room }) => {
+      socket.broadcast.to(room).emit('beginPath', { x, y });
     });
-  
-    socket.on("drawPath", ({ x, y,room}) => {
-      console.log("drawLine - room:", room);
-      io.to(room).emit("drawPath", { x, y });
+    
+    socket.on('drawPath', ({ x, y, room }) => {
+      socket.broadcast.to(room).emit('drawPath', { x, y });
     });
   
       socket.on('changeConfig', (arg) => {
