@@ -6,7 +6,6 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors()); 
-var roomid='';
 const httpServer = createServer(app);
 const isDev = app.settings.env === 'development'
 const URL = isDev ? 'http://localhost:3000' : 'https://wrote-us.vercel.app'
@@ -16,20 +15,20 @@ const io = new Server(httpServer, {
         methods:["GET","POST"],
         credentials:true
     }
-});
+}); 
 
+let roomid;
 io.on("connection", (socket) => {
     console.log("server connected");
-    roomid=socket.id;
     socket.emit('yourUniqueIdEvent',roomid);
-    socket.on("beginPath", ({ x, y}) => {
-      console.log("beginPath - room:", roomid);
-      io.to(roomid).emit("beginPath", { x, y });
+    socket.on("beginPath", ({ x, y , room}) => {
+      console.log("beginPath - room:", room);
+      io.to(room).emit("beginPath", { x, y });
     });
   
-    socket.on("drawPath", ({ x, y}) => {
-      console.log("drawLine - room:", roomid);
-      io.to(roomid).emit("drawPath", { x, y });
+    socket.on("drawPath", ({ x, y,room}) => {
+      console.log("drawLine - room:", room);
+      io.to(room).emit("drawPath", { x, y });
     });
   
       socket.on('changeConfig', (arg) => {
@@ -44,11 +43,26 @@ io.on("connection", (socket) => {
         io.to(roomid).emit('changeactionitem', arg)
       });
 
-      socket.on('joinroom', ({ room }) => {
-        console.log('User joined room:', room);
-        roomid=room;
-        socket.join(room);
-        io.to(room).emit('userJoined', { userId: socket.id });
+      socket.on("joinroom", (data) => {
+        try {
+          if (!data || typeof data !== 'object') {
+            throw new Error('Invalid data structure received');
+          }
+      
+          const { roomId, userId } = data;
+      
+          if (!roomId || !userId) {
+            throw new Error('Missing roomId or userId in data');
+          }
+      
+          console.log('Received joinroom data:', data);
+          console.log('User joined room:', roomId);
+          roomid=roomId;
+          socket.join(roomId);
+          io.to(roomId).emit('userJoined', { userId: userId });
+        } catch (error) {
+          console.error('Error handling joinroom event:', error.message);
+        }
       })
 });
 
