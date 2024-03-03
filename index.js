@@ -2,6 +2,7 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require('cors');
+const { userJoin, getUsers } = require("./utils/user");
 
 const app = express();
 
@@ -31,39 +32,48 @@ io.on("connection", (socket) => {
       socket.broadcast.to(room).emit('drawPath', { x, y });
     });
   
-      socket.on('changeConfig', (arg) => {
-        io.to(roomid).emit('changeConfig',arg)
-      });
+    socket.on('changeConfig', (arg) => {
+      socket.broadcast.to(roomid).emit('changeConfig',arg)
+    });
 
-      socket.on('changeactiveitem', (arg) => {
-        io.to(roomid).emit('changeactiveitem', arg)
-      });
+    socket.on('changeactiveitem', (arg) => {
+      socket.broadcast.to(roomid).emit('changeactiveitem', arg)
+    });
 
-      socket.on('changeactionitem', (arg) => {
-        io.to(roomid).emit('changeactionitem', arg)
-      });
+    socket.on('changeactionitem', (arg) => {
+      socket.broadcast.to(roomid).emit('changeactionitem', arg)
+    });
 
       socket.on("joinroom", (data) => {
         try {
+
           if (!data || typeof data !== 'object') {
             throw new Error('Invalid data structure received');
           }
       
-          const { roomId, userId } = data;
-      
+          const { roomId, userId , UserName, host} = data;
+          const user = userJoin(userId, UserName, roomId, host);
+          const roomUsers = getUsers(user.room);
+
           if (!roomId || !userId) {
             throw new Error('Missing roomId or userId in data');
           }
-      
+          
           console.log('Received joinroom data:', data);
           console.log('User joined room:', roomId);
           roomid=roomId;
           socket.join(roomId);
-          io.to(roomId).emit('userJoined', { userId: userId });
-        } catch (error) {
+          console.log(roomUsers);
+          io.to(user.room).emit('userJoined', {userId: userId});
+          io.to(user.room).emit("users", roomUsers);
+            
+        } 
+
+        catch (error) {
           console.error('Error handling joinroom event:', error.message);
         }
-      })
+
+      });
 });
 
 app.get('/', (req, res) => {
