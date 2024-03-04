@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
           roomid=roomId;
           socket.join(roomId);
           console.log(roomUsers);
-          io.to(user.room).emit('userJoined', {userId: userId, userName:userName});
+          socket.to(user.room).emit('userJoined', {userId: userId, userName:userName});
           io.to(user.room).emit("users", roomUsers);
             
         } 
