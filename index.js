@@ -51,8 +51,8 @@ io.on("connection", (socket) => {
             throw new Error('Invalid data structure received');
           }
       
-          const { roomId, userId , UserName, host} = data;
-          const user = userJoin(userId, UserName, roomId, host);
+          const { roomId, userId , userName, host} = data;
+          const user = userJoin(userId, userName, roomId, host);
           const roomUsers = getUsers(user.room);
 
           if (!roomId || !userId) {
@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
           roomid=roomId;
           socket.join(roomId);
           console.log(roomUsers);
-          io.to(user.room).emit('userJoined', {userId: userId});
+          io.to(user.room).emit('userJoined', {userId: userId, userName:userName});
           io.to(user.room).emit("users", roomUsers);
             
         } 
