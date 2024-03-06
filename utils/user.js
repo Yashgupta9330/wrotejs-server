@@ -1,5 +1,5 @@
 const users = [];
-
+const messages=[];
 // Join user to chat
 /*const userJoin = (id, username, room, host) => {
   const user = {id, username, room, host};
@@ -8,12 +8,9 @@ const users = [];
   return user;
 };  */
 
-// Example server-side code
-const userJoin = (roomId, userId, userName, host) => {
-  // Extract data from the incoming join room event
-  // Check if the username is defined
+
+const userJoin = (userId, userName, roomId,host) => {
   if (userName !== undefined) {
-    // Add the user to the array of users in the room
     const user = {
       id: userId,
       username: userName,
@@ -21,15 +18,12 @@ const userJoin = (roomId, userId, userName, host) => {
       host: host,
     };
 
-    // Add the user to the array of users who joined the room
-    // (Assuming usersInRoom is an array that keeps track of users in the room)
     users.push(user);
 
-    // Log the updated array of users
     console.log(user);
     return user;
-  } else {
-    // Log an error if the username is undefined
+  }
+   else {
     console.error("Error: Username is undefined for user with ID", userId);
   }
 };
@@ -54,8 +48,37 @@ const getUsers = (room) => {
   return RoomUsers;
 };
 
+//set messages
+const setMessage=(roomId,text,userName,user,timestamp)=>{
+  const message = {
+    user: user,
+    username: userName,
+    room: roomId,
+    text:text,
+    time:timestamp
+  };
+
+  messages.push(message);
+
+  console.log(message);
+  return message;
+}
+
+//get room message
+const getroommessage= (room) => {
+  const Roommessage = [];
+  messages.map((message) => {
+    if (message.room == room) {
+      Roommessage.push(message);
+    }
+  });
+  return Roommessage;
+};
+
 module.exports = {
   userJoin,
   userLeave,
   getUsers,
+  setMessage,
+  getroommessage,
 };

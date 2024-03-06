@@ -2,7 +2,7 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require('cors');
-const { userJoin, getUsers } = require("./utils/user");
+const { userJoin, getUsers, setMessage, getroommessage } = require("./utils/user");
 
 const app = express();
 
@@ -42,6 +42,15 @@ io.on("connection", (socket) => {
 
     socket.on('changeactionitem', (arg) => {
       socket.broadcast.to(roomid).emit('changeactionitem', arg)
+    });
+     
+    socket.on('roomMessage',(data)=>{
+       const {roomId,text,userName,timestamp,user}=data;
+       const message=setMessage(roomId,text,userName,user,timestamp);
+       console.log(message);
+       const roommessages=getroommessage(roomId);
+       console.log(roommessages);
+       io.to(roomId).emit("chats", roommessages);
     });
 
       socket.on("joinroom", (data) => {
