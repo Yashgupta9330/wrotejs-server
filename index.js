@@ -44,6 +44,12 @@ io.on("connection", (socket) => {
       socket.broadcast.to(roomid).emit('changeactionitem', arg)
     });
      
+    socket.on('pointer',({room}) => {
+     console.log("entering");
+     console.log(room);
+     socket.broadcast.to(room).emit('pointer', {})
+    });
+
     socket.on('roomMessage',(data)=>{
        const {roomId,text,userName,timestamp,user}=data;
        const message=setMessage(roomId,text,userName,user,timestamp);
